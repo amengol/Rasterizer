@@ -1,2 +1,2 @@
 # Rasterizer
-My own rasterizer based on my MinGL library
+My own rasterizer (not using any graphics library)
