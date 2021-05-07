@@ -75,6 +75,8 @@ StyleCopReport.xml
 *.ilk
 *.meta
 *.obj
+# But bypass Wavefront .obj file in assets folder
+!core/assets/*.obj
 *.iobj
 *.pch
 *.pdb
