@@ -26,5 +26,8 @@
     <ClInclude Include="PpmRender.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MathUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

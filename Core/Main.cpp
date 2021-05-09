@@ -3,25 +3,26 @@
 #include <fstream>
 #include <sstream>
 #include "PpmRender.h"
+#include "MathUtil.h"
 
-void drawLine(int x0, int y0, int x1, int y1, const PpmRender::Color& color, PpmRender& render)
+void drawLine(vec2<int> p0, vec2<int> p1, const PpmRender::Color& color, PpmRender& render)
 {
 	bool steep = false;
-	if (std::abs(x0 - x1) < std::abs(y0 - y1)) {
-		std::swap(x0, y0);
-		std::swap(x1, y1);
+	if (std::abs(p0.x - p1.x) < std::abs(p0.y - p1.y)) {
+		std::swap(p0.x, p0.y);
+		std::swap(p1.x, p1.y);
 		steep = true;
 	}
-	if (x0 > x1) {
-		std::swap(x0, x1);
-		std::swap(y0, y1);
+	if (p0.x > p1.x) {
+		std::swap(p0.x, p1.x);
+		std::swap(p0.y, p1.y);
 	}
-	int dx = x1 - x0;
-	int dy = y1 - y0;
+	int dx = p1.x - p0.x;
+	int dy = p1.y - p0.y;
 	int derror = std::abs(dy) * 2;
 	int error = 0;
-	int y = y0;
-	for (int x = x0; x < x1; ++x) {
+	int y = p0.y;
+	for (int x = p0.x; x < p1.x; ++x) {
 		if (steep) {
 			render.putPixel(y, x, color);
 		}
@@ -30,7 +31,7 @@ void drawLine(int x0, int y0, int x1, int y1, const PpmRender::Color& color, Ppm
 		}
 		error += derror;
 		if (error > dx) {
-			y += (y1 > y0 ? 1 : -1);
+			y += (p1.y > p0.y ? 1 : -1);
 			error -= dx * 2;
 		}
 	}
@@ -93,25 +94,30 @@ int main()
 	
 	PpmRender::Color white{ 255, 255, 255 };
 	PpmRender render(PpmRender::Format::P3, width, height);
-
+ 
 	for (Model::Face& face : model.faces) {
 		// We have 3 vertices for each face
 		// Line from V0 to V1
 		int x0 = (model.vertices[face.v[0]].x + 1) * width / 2.0f;
 		int y0 = (model.vertices[face.v[0]].y + 1) * height / 2.0f;
+		const vec2<int> p0{x0, y0};
 		int x1 = (model.vertices[face.v[1]].x + 1) * width / 2.0f;
 		int y1 = (model.vertices[face.v[1]].y + 1) * height / 2.0f;
-		drawLine(x0, y0, x1, y1, white, render);
+		const vec2<int> p1{ x1, y1 };
+		drawLine(p0, p1, white, render);
 		// Line from V1 to V2
 		int x2 = (model.vertices[face.v[2]].x + 1) * width / 2.0f;
 		int y2 = (model.vertices[face.v[2]].y + 1) * height / 2.0f;
-		drawLine(x1, y1,x2, y2, white, render);
+		const vec2<int> p2{ x2, y2 };
+		drawLine(p1, p2, white, render);
 		// Line from V2 to V0
-		drawLine(x0, y0, x2, y2, white, render);
+		drawLine(p0, p2, white, render);
 	}
-
+ 
 	PpmRender::Color bgn{ 46, 82, 99 };
 	render.writeFile("out.ppm", bgn);
+
+
 
 	return 0;
 }
